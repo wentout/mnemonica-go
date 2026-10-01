@@ -1,0 +1,40 @@
+#!/bin/bash
+# One command runs all gates (contract §4.4) in BOTH modules: race tests
+# with 100.0% statement coverage each, vet, staticcheck, gofmt across the
+# tree, and the P5 analyzer over the port's own sources. Exit 0 = green.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+gofmt -l . | grep -v '^$' && { echo "gofmt: unformatted files above"; exit 1; } || true
+
+# Runtime module: stdlib only, so importers of mnemonica pay no tool cost.
+go vet ./...
+staticcheck ./...
+go test -race -coverprofile=coverage.out ./...
+total=$(go tool cover -func=coverage.out | tail -1 | awk '{print $3}')
+echo "runtime coverage: $total"
+[ "$total" = "100.0%" ] || { echo "coverage below 100.0%"; exit 1; }
+
+# Tools module: the generator and the analyzer — the only place
+# golang.org/x/tools is allowed. Import boundary: tools imports mnemonica
+# (via replace), never the other way.
+(
+	cd tools
+	go vet ./...
+	staticcheck ./...
+	go test -race -coverprofile=coverage.out ./...
+	tools_total=$(go tool cover -func=coverage.out | tail -1 | awk '{print $3}')
+	echo "tools coverage: $tools_total"
+	[ "$tools_total" = "100.0%" ] || { echo "tools coverage below 100.0%"; exit 1; }
+)
+
+# mnemonicavet over the port's own packages: the port must be
+# analyzer-clean, including its tests.
+vetdir="$(mktemp -d)"
+trap 'rm -rf "$vetdir"' EXIT
+(
+	cd tools
+	go build -o "$vetdir/mnemonicavet" ./analysis/mnemonicavet
+)
+go vet -vettool="$vetdir/mnemonicavet" ./mnemonica/... ./mnemonicatest/...
+echo "mnemonicavet over the port: clean"

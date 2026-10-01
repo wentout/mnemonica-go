@@ -1,0 +1,18 @@
+module mnemonica/tools
+
+go 1.27.0
+
+require (
+	// The runtime require is not optional: cmd/mnemonica-gen's testdata
+	// packages import mnemonica/mnemonica, and `go mod tidy` cannot see
+	// testdata imports — do not drop this line.
+	golang.org/x/tools v0.37.0
+	mnemonica v0.0.0-00010101000000-000000000000
+)
+
+require (
+	golang.org/x/mod v0.28.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
+)
+
+replace mnemonica => ../
