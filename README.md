@@ -155,6 +155,42 @@ Reconstructing utils inherit the source's recorded context;
 `ConstructorSequence` / `CollectConstructors` (the naming-path spine),
 `NewException` (an error carrying the instance).
 
+## Lineage export
+
+`mnemonica.ID(x)` returns a stable, process-unique instance id
+(`"<hex8>:<counter>"`), assigned lazily — instances that are never
+exported pay nothing. `mnemonica.DeepParse(x)` walks the lineage,
+instance first, root last. `mnemonica.Lineage([]Instance{a, b}, opts...)`
+exports a deduplicated graph — the FIRST DRAFT of the cross-language
+shared format:
+
+```json
+{ "version": "1",
+  "heads": ["62bd7d68:4", "62bd7d68:9"],
+  "nodes": { "62bd7d68:4": { "type": {"collection": "fixture", "path": "User.Admin"},
+                             "own": {"Role": "root"},
+                             "parent": "62bd7d68:1" } } }
+```
+
+- `own` = the fields that level's own struct declares (embedded parents
+  and the Node header never appear) — shadowed values stay with their
+  writer; ancestors shared by several exports appear once, at any depth.
+- A field holding another instance exports as `{ "$ref": "<id>" }` and
+  the target joins `nodes` with its own chain.
+- Non-JSON values (funcs, channels, NaN/±Inf, complex numbers, cycles)
+  export as tagged placeholders — `{"$mnemonica": "unsupported",
+  "kind": "func"}` — never an error or panic.
+- Options: `mnemonica.WithArgs()` (sanitised construction args),
+  `mnemonica.WithProps("timestamp")` (opt-in metadata).
+
+The format is pinned by `lineage.schema.json` at the repo root (JSON
+Schema 2020-12) and one shared fixture, `testdata/lineage/fixture.json` +
+its README — the construction script every port (JS, Python) reproduces
+byte-for-byte, with ids mapped 1:1 in first-encounter order (ids are
+per-process and implementation-specific). The schema-validation tests
+live in the tools module (`tools/lineageschema`) since the validator
+dependency must stay out of the stdlib-only runtime.
+
 ## Generator: `mnemonica-gen`
 
 The Go analogue of the JS tactica. Add `//go:generate mnemonica-gen` to
@@ -168,6 +204,34 @@ a package with `Define`/`Sub` calls; it emits `mnemonica_gen.go`:
 
 Output is deterministic, gofmt'd, refuses to overwrite existing methods,
 and the Define/Sub call sites stay hand-written.
+
+## OpenTelemetry
+
+The `otel` module (`go get github.com/wentout/mnemonica-go/otel`) links
+constructions to traces, in both directions:
+
+```go
+otelx.StampConstructions(types)   // once: every construction stamps the span
+                                  // that was current at construction
+
+// in the request:
+user, _ := UserT.NewCtx(requestCtx, "ada")   // stamps the request span
+
+// after the request, in a worker goroutine:
+_, worker := otelx.StartLinkedSpan(context.Background(), tracer, "job", admin)
+defer worker.End()        // LINKED to the construction span — the request's
+                          // cancellation cannot kill work on the data
+
+// on failure: the lineage graph rides the error span
+otelx.RecordLineage(ctx, mnemonica.NewException(admin, err))
+```
+
+Four attribute names form the cross-language contract:
+`mnemonica.instance.id`, `mnemonica.parent.id`,
+`mnemonica.type.collection`, `mnemonica.type.path` — a Jaeger trace and a
+lineage graph join on them. Stamping uses span attributes (queryable);
+the error path attaches the lineage graph JSON as a span event named
+`mnemonica.error`. The OTEL dependency never enters the runtime module.
 
 ## The write-through hazard
 

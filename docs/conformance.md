@@ -59,13 +59,14 @@ JS sources: the mnemonica core repository (its `README.md`, `FOR_HUMANS.md`,
 | test/bindProtoMethods.js (helper) | bound-method machinery | | N/A | |
 | test/throw-type-error.js (fixture) | constructor that throws | TestNewHandlerErrorBecomesErroredInstance, TestFromHandlerErrorBecomesErroredInstance, TestErroredInstanceShape | ported | feeds the C4.2 tests |
 | test/instance-methods-helper.js (helper) | withInstanceMethods userland pattern | ExampleExtract, ExamplePick, ExampleParent | ported | adapted: the JS helper re-attaches methods to instances; in Go the utils ARE standalone package functions (the same shape the JS docs recommend since v1.0.6), so the helper pattern collapses to importing the package |
+| utils.deepParse | the lineage walk, instance → root | TestDeepParse, TestDeepParseNonInstance | ported | `DeepParse(x) []Parsed` — instance first, root last, `Parent` is the parent instance (nil at the root), the shape the JS probe settled on |
+| utils.lineage | the deduplicated export graph | TestLineageSharedFixture, TestLineageSharedFixtureBytes, TestLineageForkDedup, TestLineageRefChain, TestLineageCycles, TestLineageJSONRoundTrip, TestIDCollectable, TestIDConcurrentAssign + tools lineageschema TestSharedFixtureValidates, TestPlaceholderShapesValidate | ported | the FIRST DRAFT of the cross-language format: `ID` (the counter rides in Node, CAS-assigned from a global atomic — no registry, so id'd instances stay garbage-collectable), `Lineage([]Instance, ...Option)`, `lineage.schema.json` (2020-12) at the repo root, shared fixture `testdata/lineage/fixture.json`; deviations documented in testdata/lineage/README.md (ids are implementation-specific, mapped 1:1 in encounter order) |
+| OTEL observability (spans on hooks, ContextOf as the carrier) | TestStampConstructionsOnRequestSpan, TestStampConstructionsErrored, TestStartLinkedSpan, TestRecordLineageCarriers, TestEndToEnd (otel module) | ported | the `otel` module: `otelx.StampConstructions` stamps the four contract attributes on the construction span; `otelx.StartLinkedSpan` links post-request work via trace.Link through the recorded (detached) ctx; `otelx.RecordLineage` attaches the lineage graph JSON as a span event; probe-evidenced decisions (attributes over events; event over log record) in the experiments area |
 
 ## Deferred (later)
 
 | item | what | status | reason |
 |---|---|---|---|
-| deepParse / lineage utils | open (later) | planned in the JS core; the port follows when it lands there (contract C7) |
-| OTEL observability (spans on hooks, ContextOf as the carrier) | open (later) | P4 defined the attachment point (detached ctx values + hook boundaries); the OTEL adapter itself is a separate later plan |
 | .tactica-style JSON output for editor tooling | open (later) | generator metadata for graph visualizers; separate from the runtime contract |
 
 ## Coverage exclusions

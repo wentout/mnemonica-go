@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wentout.github.io/mnemonica-go/lineage.schema.json",
+  "title": "mnemonica lineage graph",
+  "description": "The shared lineage export format (draft 1). Instance ids are implementation-specific; cross-language comparison maps them 1:1 in first-encounter order (see testdata/lineage/README.md).",
+  "type": "object",
+  "required": ["version", "heads", "nodes"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": "1"
+    },
+    "heads": {
+      "type": "array",
+      "description": "Ids of the exported instances, in argument order.",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "nodes": {
+      "type": "object",
+      "description": "Every reachable instance, deduplicated at any depth, keyed by id.",
+      "additionalProperties": { "$ref": "#/$defs/node" }
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "required": ["type", "own", "parent"],
+      "properties": {
+        "type": {
+          "type": "object",
+          "description": "The level's type: where it was declared, not just its name (names collide).",
+          "required": ["collection", "path"],
+          "additionalProperties": false,
+          "properties": {
+            "collection": { "type": "string" },
+            "path": { "type": "string", "minLength": 1 }
+          }
+        },
+        "own": {
+          "type": "object",
+          "description": "The fields this level's own struct declares: shadowed values stay with their writer. Embedded parents and the lineage header never appear here.",
+          "additionalProperties": { "$ref": "#/$defs/value" }
+        },
+        "parent": {
+          "type": ["string", "null"],
+          "description": "The parent's id, or null at the root."
+        },
+        "args": {
+          "description": "Construction args — present only when the WithArgs option is given.",
+          "$ref": "#/$defs/value"
+        },
+        "props": {
+          "type": "object",
+          "description": "Opt-in metadata (e.g. timestamp) — present only when WithProps is given.",
+          "additionalProperties": { "$ref": "#/$defs/value" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "value": {
+      "description": "A JSON-safe value: instances export as $ref, non-JSON values as tagged placeholders.",
+      "anyOf": [
+        { "type": "null" },
+        { "type": "boolean" },
+        { "type": "string" },
+        { "type": "number" },
+        { "type": "integer" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/$defs/value" }
+        },
+        {
+          "type": "object",
+          "description": "An instance reference: the target joins nodes with its own chain.",
+          "required": ["$ref"],
+          "additionalProperties": false,
+          "properties": {
+            "$ref": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Tagged placeholder for a value JSON cannot carry (funcs, channels, NaN, infinities, complex numbers, cycles, non-string map keys). Never an error.",
+          "required": ["$mnemonica", "kind"],
+          "additionalProperties": false,
+          "properties": {
+            "$mnemonica": { "const": "unsupported" },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "complex",
+                "func",
+                "chan",
+                "unsafe.Pointer",
+                "nan",
+                "+inf",
+                "-inf",
+                "cycle",
+                "map-keys",
+                "invalid"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "A plain nested value (structs, maps with string-or-integer keys).",
+          "additionalProperties": { "$ref": "#/$defs/value" }
+        }
+      ]
+    }
+  }
+}

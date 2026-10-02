@@ -1,32 +1,31 @@
 #!/bin/bash
-# One command runs all gates (contract §4.4) in BOTH modules: race tests
-# with 100.0% statement coverage each, vet, staticcheck, gofmt across the
-# tree, and the P5 analyzer over the port's own sources. Exit 0 = green.
+# One command runs all gates (contract §4.4) in ALL THREE modules: race
+# tests with 100.0% statement coverage each, vet, staticcheck, gofmt
+# across the tree, and the P5 analyzer over the port's own sources.
+# Exit 0 = green.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 gofmt -l . | grep -v '^$' && { echo "gofmt: unformatted files above"; exit 1; } || true
 
-# Runtime module: stdlib only, so importers of mnemonica pay no tool cost.
-go vet ./...
-staticcheck ./...
-go test -race -coverprofile=coverage.out ./...
-total=$(go tool cover -func=coverage.out | tail -1 | awk '{print $3}')
-echo "runtime coverage: $total"
-[ "$total" = "100.0%" ] || { echo "coverage below 100.0%"; exit 1; }
+# Gates for one module, run in its directory; $2 is the report label. The
+# runtime module is stdlib-only; tools holds the generator, the analyzer,
+# and the schema validator; otel holds the OTEL link. Nothing crosses back.
+check_module() {
+	(
+		cd "$1"
+		go vet ./...
+		staticcheck ./...
+		go test -race -coverprofile=coverage.out ./...
+		total=$(go tool cover -func=coverage.out | tail -1 | awk '{print $3}')
+		echo "$2 coverage: $total"
+		[ "$total" = "100.0%" ] || { echo "$2 coverage below 100.0%"; exit 1; }
+	)
+}
 
-# Tools module: the generator and the analyzer — the only place
-# golang.org/x/tools is allowed. Import boundary: tools imports mnemonica
-# (via replace), never the other way.
-(
-	cd tools
-	go vet ./...
-	staticcheck ./...
-	go test -race -coverprofile=coverage.out ./...
-	tools_total=$(go tool cover -func=coverage.out | tail -1 | awk '{print $3}')
-	echo "tools coverage: $tools_total"
-	[ "$tools_total" = "100.0%" ] || { echo "tools coverage below 100.0%"; exit 1; }
-)
+check_module . runtime
+check_module tools tools
+check_module otel otel
 
 # mnemonicavet over the port's own packages: the port must be
 # analyzer-clean, including its tests.

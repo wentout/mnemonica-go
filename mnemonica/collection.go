@@ -8,12 +8,14 @@ import (
 
 // Collection holds the root types of one type tree (C1.1). Create one per
 // application domain with NewCollection, optionally passing Option values
-// to set collection-level config defaults (C4), or use the package-level
-// Default. A Collection is safe for concurrent use: definition and hook
-// registration mutate the registry under a write lock, lookup and
-// construction read it under read locks.
+// to set collection-level config defaults (C4) or a collection name (used
+// by the lineage export), or use the package-level Default. A Collection
+// is safe for concurrent use: definition and hook registration mutate the
+// registry under a write lock, lookup and construction read it under read
+// locks.
 type Collection struct {
 	mu       sync.RWMutex
+	name     string
 	roots    map[string]*typeRecord
 	defaults config
 	hooks    map[HookKind][]HookFunc
@@ -22,7 +24,8 @@ type Collection struct {
 // NewCollection creates an empty type collection (C1.1). The options, if
 // any, become the collection-level config defaults: a root type resolves
 // its config against them, and a subtype against its parent's resolved
-// config (JS subtype config inheritance).
+// config (JS subtype config inheritance). WithCollectionName sets the
+// name the lineage export records for the collection's types.
 func NewCollection(options ...Option) *Collection {
 	state := collectOptions(options)
 	result := &Collection{
@@ -30,6 +33,17 @@ func NewCollection(options ...Option) *Collection {
 		defaults: state.resolve(builtinDefaults()),
 		hooks:    make(map[HookKind][]HookFunc),
 	}
+	if state.collectionName != nil {
+		result.name = *state.collectionName
+	}
+	return result
+}
+
+// Name returns the collection's name: the WithCollectionName option given
+// to NewCollection, or "default" for the package-level Default. Unnamed
+// collections return "".
+func (c *Collection) Name() string {
+	result := c.name
 	return result
 }
 
@@ -53,8 +67,8 @@ func (c *Collection) RegisterHook(kind HookKind, hook HookFunc) error {
 }
 
 // Default is the package-level default collection, the Go counterpart of
-// the JS defaultTypes collection (C1.1).
-var Default = NewCollection()
+// the JS defaultTypes collection (C1.1). It is named "default".
+var Default = NewCollection(WithCollectionName("default"))
 
 // typeRecord is the untyped identity of a declared type, shared by the
 // typed handle TypeDef[T, P, A] and the untyped handle Type. It is the

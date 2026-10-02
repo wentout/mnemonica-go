@@ -105,3 +105,43 @@ func BenchmarkFromWire(b *testing.B) {
 		benchSink = admin
 	}
 }
+
+func BenchmarkIDAssign(b *testing.B) {
+	// L1: ids are minted lazily through a side registry; this measures
+	// the first-assignment path (map insert + counter), not construction.
+	fx := newFixture()
+	user, err := fx.userT.New("ada")
+	if err != nil {
+		b.Fatal(err)
+	}
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		benchSink = mnemonica.ID(user)
+	}
+}
+
+func BenchmarkLineage(b *testing.B) {
+	// L1: exporting the shared-fixture shape (4 nodes, one $ref, dedup).
+	fx := newFixture()
+	user, err := fx.userT.New("ada")
+	if err != nil {
+		b.Fatal(err)
+	}
+	admin, err := fx.adminT.From(user, "root")
+	if err != nil {
+		b.Fatal(err)
+	}
+	if _, err := fx.superT.From(admin, 7); err != nil {
+		b.Fatal(err)
+	}
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		graph, err := mnemonica.Lineage([]mnemonica.Instance{admin})
+		if err != nil {
+			b.Fatal(err)
+		}
+		benchSink = graph
+	}
+}

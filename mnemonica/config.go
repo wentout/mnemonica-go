@@ -46,6 +46,10 @@ type optionState struct {
 	submitStack *bool
 	snapshot    *bool
 
+	// collectionName names a collection for the lineage export. Only
+	// NewCollection consumes it; Define/Sub options silently ignore it.
+	collectionName *string
+
 	// wire is an explicit parent-wiring func (WithWireFunc, P5): it
 	// replaces the default cached reflect setter. wireChild/wireParent
 	// remember the func's declared pointer types so Sub can validate them
@@ -87,6 +91,14 @@ func WithSubmitStack(value bool) Option {
 func WithParentSnapshots(value bool) Option {
 	return func(state *optionState) {
 		state.snapshot = &value
+	}
+}
+
+// WithCollectionName names a collection for the lineage export (L1). It
+// is meaningful only as a NewCollection option; Define and Sub ignore it.
+func WithCollectionName(name string) Option {
+	return func(state *optionState) {
+		state.collectionName = &name
 	}
 }
 

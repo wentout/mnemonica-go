@@ -31,6 +31,16 @@ type SnapshotField struct {
 // are unexported and read through Props; users interact with Node only by
 // embedding it.
 type Node struct {
+	// idCounter is the instance's lineage id counter: 0 means "not
+	// assigned yet" — the global counter starts at 1, so 0 is never a
+	// real id. Kept FIRST so the word is 64-bit aligned for the atomic
+	// CAS in ID on every platform (on 32-bit arches Go guarantees
+	// alignment only for a struct's first word; embed Node as the first
+	// field — the documented idiom in every example). The counter rides
+	// in the instance itself, so an id'd instance stays collectible: no
+	// registry pins it. Copies of a Node carry its counter and so share
+	// its id — a copy IS the same construction record.
+	idCounter  uint64
 	record     *typeRecord
 	parent     Instance
 	args       any
