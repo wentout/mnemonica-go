@@ -1,6 +1,6 @@
 package sample
 
-import m "mnemonica/mnemonica"
+import m "github.com/wentout/mnemonica-go/mnemonica"
 
 // External is declared through an ALIASED mnemonica import: detection goes
 // through types (the PkgName), not the identifier, so this must still be

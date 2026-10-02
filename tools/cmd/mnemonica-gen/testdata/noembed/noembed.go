@@ -3,7 +3,7 @@
 package noembed
 
 import (
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 var collection = mnemonica.NewCollection()

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 func TestHookExecutionOrder(t *testing.T) {

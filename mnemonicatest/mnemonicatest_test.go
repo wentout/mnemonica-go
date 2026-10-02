@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // Fixture: the canonical User → Admin graph, defined with parent snapshots

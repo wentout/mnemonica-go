@@ -4,4 +4,4 @@
 // testdata package would stop compiling.
 package runtimepin
 
-import _ "mnemonica/mnemonica"
+import _ "github.com/wentout/mnemonica-go/mnemonica"

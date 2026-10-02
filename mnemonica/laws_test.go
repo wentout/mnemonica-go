@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // Property tests for the HoTT correspondence's EXACT claims — the Go

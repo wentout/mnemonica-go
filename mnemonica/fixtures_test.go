@@ -1,7 +1,7 @@
 package mnemonica_test
 
 import (
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // Fixture types for the port tests: the canonical User/Admin graph plus

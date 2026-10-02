@@ -23,7 +23,7 @@ import (
 
 // mnemonicaPath is the runtime module's import path (placeholder module
 // path, owned by viktor).
-const mnemonicaPath = "mnemonica/mnemonica"
+const mnemonicaPath = "github.com/wentout/mnemonica-go/mnemonica"
 
 // Analyzer reports promoted-field assignments into shared lineage parents.
 var Analyzer = &analysis.Analyzer{

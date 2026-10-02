@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // Utils fixtures: a shadowing pair, the JS doc-example pipeline, the

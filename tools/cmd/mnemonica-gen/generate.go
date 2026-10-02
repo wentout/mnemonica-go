@@ -21,7 +21,7 @@ const outputName = "mnemonica_gen.go"
 
 // mnemonicaPath is the runtime module's import path (placeholder module
 // path, owned by viktor).
-const mnemonicaPath = "mnemonica/mnemonica"
+const mnemonicaPath = "github.com/wentout/mnemonica-go/mnemonica"
 
 // subtype is one mnemonica.Sub call the generator turns into a wire func
 // and a parent-struct method pair.

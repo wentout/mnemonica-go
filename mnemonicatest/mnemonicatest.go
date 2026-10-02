@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // AssertParentsUnchanged reports every ancestor whose user-visible fields

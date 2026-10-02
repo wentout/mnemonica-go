@@ -3,7 +3,7 @@
 package lineage
 
 import (
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 	"time"
 )
 

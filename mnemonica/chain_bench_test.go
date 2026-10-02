@@ -3,7 +3,7 @@ package mnemonica_test
 import (
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // Deep-chain READ benchmarks (contract §4.5: construction cost and

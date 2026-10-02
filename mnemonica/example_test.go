@@ -3,7 +3,7 @@ package mnemonica_test
 import (
 	"fmt"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // The package doc example: define a root, define a subtype FROM it,

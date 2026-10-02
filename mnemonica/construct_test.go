@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 func TestNewConstructsRoot(t *testing.T) {

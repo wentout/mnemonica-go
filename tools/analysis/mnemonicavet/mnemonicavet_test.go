@@ -12,10 +12,12 @@ import (
 )
 
 // TestMain links the runtime package into the analysistest GOPATH: the
-// fixture imports mnemonica/mnemonica, and analysistest resolves imports
-// from testdata/src only. The link is removed after the run.
+// fixture imports github.com/wentout/mnemonica-go/mnemonica, and
+// analysistest resolves imports from testdata/src only, so the link
+// mirrors the import path's directory shape. The link is removed after
+// the run.
 func TestMain(m *testing.M) {
-	link := filepath.Join("testdata", "src", "mnemonica", "mnemonica")
+	link := filepath.Join("testdata", "src", "github.com", "wentout", "mnemonica-go", "mnemonica")
 	target, err := filepath.Abs(filepath.Join("..", "..", "..", "mnemonica"))
 	if err != nil {
 		panic(err)

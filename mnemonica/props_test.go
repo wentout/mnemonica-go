@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 func TestPropsOfSubtype(t *testing.T) {

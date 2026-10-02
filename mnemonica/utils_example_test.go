@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // The JS docs' utils examples, ported: each Example matches its doc snippet.

@@ -3,7 +3,7 @@ package mnemonica_test
 import (
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 func TestIsWalksLineage(t *testing.T) {

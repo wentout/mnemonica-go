@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // ctxKey is the test key type for context values (the recommended

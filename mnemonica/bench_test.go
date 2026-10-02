@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 var benchSink any

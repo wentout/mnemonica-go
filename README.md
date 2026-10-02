@@ -33,17 +33,22 @@ mnemonica.Is[*User](admin)  // true — an Admin built from a User IS a User
 
 ## Install
 
-The module path is a placeholder (`mnemonica`); the real path is set by
-the project owner at publish time. Until then, vendor or `replace`
-directives can point at a checkout:
+```bash
+go get github.com/wentout/mnemonica-go
+```
 
 ```go
-import "mnemonica/mnemonica"
+import "github.com/wentout/mnemonica-go/mnemonica"
 ```
 
 The runtime package depends only on the standard library. The
 generator and the analyzer live in a separate tools module and are only
-needed at development time.
+needed at development time:
+
+```bash
+go install github.com/wentout/mnemonica-go/tools/cmd/mnemonica-gen@latest
+go install github.com/wentout/mnemonica-go/tools/analysis/mnemonicavet@latest
+```
 
 ## Quickstart
 

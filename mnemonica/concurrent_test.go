@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // TestConcurrentUse hammers the registry from many goroutines:

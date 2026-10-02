@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // The P4 story: context bound to calls (Go) meets context bound to data

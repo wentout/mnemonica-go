@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 func TestErroredInstanceShape(t *testing.T) {

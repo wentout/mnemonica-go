@@ -3,7 +3,7 @@ package mnemonica_test
 import (
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 func TestParentSnapshotCaptured(t *testing.T) {

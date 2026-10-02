@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"mnemonica/mnemonica"
+	"github.com/wentout/mnemonica-go/mnemonica"
 )
 
 // strictChain is exercised through the untyped bridge: the typed From takes
