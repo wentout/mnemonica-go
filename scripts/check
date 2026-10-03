@@ -8,6 +8,14 @@ cd "$(dirname "$0")/.."
 
 gofmt -l . | grep -v '^$' && { echo "gofmt: unformatted files above"; exit 1; } || true
 
+# The workspace resolves the untagged lethe module from the sibling
+# checkout and pins the self-imports to the local tree. go.work is a
+# local developer file (Go's own guidance: not committed) — scripts/check
+# generates it if absent; .gitignore lists it.
+if [ ! -f go.work ]; then
+	go work init . ./tools ./otel ../lethe
+fi
+
 # Gates for one module, run in its directory; $2 is the report label. The
 # runtime module is stdlib-only; tools holds the generator, the analyzer,
 # and the schema validator; otel holds the OTEL link. Nothing crosses back.

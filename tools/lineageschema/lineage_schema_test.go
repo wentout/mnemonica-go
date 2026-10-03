@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"math"
-	"os"
 	"testing"
 	"time"
 	"unsafe"
 
+	"github.com/mythographica/lethe"
 	"github.com/santhosh-tekuri/jsonschema/v6"
 	"github.com/wentout/mnemonica-go/mnemonica"
 )
@@ -16,11 +16,7 @@ import (
 // schema compiles the shared schema once per test run.
 func schema(t *testing.T) *jsonschema.Schema {
 	t.Helper()
-	raw, err := os.ReadFile("../../lineage.schema.json")
-	if err != nil {
-		t.Fatalf("read schema: %v", err)
-	}
-	document, err := jsonschema.UnmarshalJSON(bytes.NewReader(raw))
+	document, err := jsonschema.UnmarshalJSON(bytes.NewReader(lethe.LineageSchema))
 	if err != nil {
 		t.Fatalf("parse schema: %v", err)
 	}
@@ -123,11 +119,73 @@ func buildFixture(t *testing.T) (*LineageUser, *LineageAdmin, *LineageAdmin, *Li
 }
 
 func TestSharedFixtureValidates(t *testing.T) {
-	raw, err := os.ReadFile("../../testdata/lineage/fixture.json")
+	validate(t, bytes.TrimSpace(lethe.LineageFixture))
+}
+
+// TestSharedFixtureGraphMatches is the byte-for-byte half of the shared
+// contract: this port's graph for the fixture script, ids mapped 1:1 in
+// first-encounter order, must equal lethe.LineageFixture exactly.
+func TestSharedFixtureGraphMatches(t *testing.T) {
+	user, adminOne, adminTwo, super := buildFixture(t)
+	graph, err := mnemonica.Lineage([]mnemonica.Instance{super, adminTwo})
 	if err != nil {
-		t.Fatalf("read fixture: %v", err)
+		t.Fatalf("Lineage: %v", err)
 	}
-	validate(t, bytes.TrimSpace(raw))
+	mapping := map[string]string{
+		mnemonica.ID(super):    "s",
+		mnemonica.ID(adminOne): "a1",
+		mnemonica.ID(user):     "u",
+		mnemonica.ID(adminTwo): "a2",
+	}
+	raw, err := json.Marshal(graph)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var decoded map[string]any
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	remapValue(decoded, mapping)
+	got, err := json.Marshal(decoded)
+	if err != nil {
+		t.Fatalf("re-marshal: %v", err)
+	}
+	if !bytes.Equal(got, bytes.TrimSpace(lethe.LineageFixture)) {
+		t.Errorf("the port's fixture graph differs from the shared fixture:\n%s", got)
+	}
+}
+
+// remapValue renames ids (heads, node keys, parent, $ref) through the
+// decoded graph, mirroring the runtime test's helper.
+func remapValue(value any, mapping map[string]string) {
+	switch typed := value.(type) {
+	case map[string]any:
+		for key, item := range typed {
+			if key == "parent" || key == "$ref" {
+				if id, ok := item.(string); ok {
+					if mapped, found := mapping[id]; found {
+						typed[key] = mapped
+					}
+				}
+				continue
+			}
+			if mapped, found := mapping[key]; found {
+				delete(typed, key)
+				typed[mapped] = item
+			}
+			remapValue(item, mapping)
+		}
+	case []any:
+		for index, item := range typed {
+			if id, ok := item.(string); ok {
+				if mapped, found := mapping[id]; found {
+					typed[index] = mapped
+				}
+				continue
+			}
+			remapValue(item, mapping)
+		}
+	}
 }
 
 func TestProducedFixtureGraphValidates(t *testing.T) {

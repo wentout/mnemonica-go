@@ -183,12 +183,14 @@ shared format:
 - Options: `mnemonica.WithArgs()` (sanitised construction args),
   `mnemonica.WithProps("timestamp")` (opt-in metadata).
 
-The format is pinned by `lineage.schema.json` at the repo root (JSON
-Schema 2020-12) and one shared fixture, `testdata/lineage/fixture.json` +
-its README — the construction script every port (JS, Python) reproduces
-byte-for-byte, with ids mapped 1:1 in first-encounter order (ids are
-per-process and implementation-specific). The schema-validation tests
-live in the tools module (`tools/lineageschema`) since the validator
+The format is pinned by [lethe](https://github.com/mythographica/lethe) —
+`lineage.schema.json` (JSON Schema 2020-12) plus one shared fixture and
+its recipe README — the construction script every port (JS, Python)
+reproduces byte-for-byte, with ids mapped 1:1 in first-encounter order
+(ids are per-process and implementation-specific). Go consumers read the
+contract through the embedded exports of `github.com/mythographica/lethe`
+(`lethe.LineageSchema`, `lethe.LineageFixture`); the schema-validation
+tests live in the tools module (`tools/lineageschema`) since the validator
 dependency must stay out of the stdlib-only runtime.
 
 ## Generator: `mnemonica-gen`

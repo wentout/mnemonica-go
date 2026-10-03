@@ -14,9 +14,10 @@ import (
 
 // This file is the L1 lineage export: instance ids, the deep parse walk,
 // and the cross-language lineage graph (the FIRST DRAFT of the shared
-// format; see the JS core's plans/lineage-export.md and the repo-root
-// lineage.schema.json). The runtime stays stdlib-only; schema validation
-// of the output lives in the tools module.
+// format; see github.com/mythographica/lethe, whose lineage.schema.json
+// is the contract, and the JS core's plans/lineage-export.md). The
+// runtime stays stdlib-only; schema validation of the output lives in
+// the tools module.
 
 // ---- instance ids ----
 
@@ -216,7 +217,8 @@ type lineageExporter struct {
 // targets in), then exports the parent link — so ids are minted in
 // first-encounter order: the node itself, its $ref targets in field
 // declaration order, then its parent. That order is part of the shared
-// fixture convention (see testdata/lineage/README.md).
+// fixture convention (see the recipe README in
+// github.com/mythographica/lethe).
 func (e *lineageExporter) exportInstance(x Instance) (string, error) {
 	_, record, err := resolveInstance(x)
 	if err != nil {
@@ -480,7 +482,8 @@ func encodeFloat(value float64) any {
 }
 
 // placeholder is the tagged stand-in for values JSON cannot carry: a
-// stable tag plus the value's kind. Documented in lineage.schema.json.
+// stable tag plus the value's kind. Documented in the schema (see
+// github.com/mythographica/lethe).
 func placeholder(kind string) map[string]any {
 	result := map[string]any{"$mnemonica": "unsupported", "kind": kind}
 	return result

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
-	"os"
 	"reflect"
 	"runtime"
 	"testing"
@@ -15,7 +14,8 @@ import (
 )
 
 // Fixture types for the shared lineage fixture — the exact construction
-// script is documented in testdata/lineage/README.md at the repo root.
+// script is documented in the recipe README of
+// github.com/mythographica/lethe, the contract's source of truth.
 
 type FixtureUser struct {
 	mnemonica.Node
@@ -285,10 +285,13 @@ func TestLineageSharedFixture(t *testing.T) {
 	}
 }
 
-// TestLineageSharedFixtureBytes pins the byte-exact shared graph: ids
-// are per-process, so the test maps its ids onto the fixture's semantic
-// ids (documented in testdata/lineage/README.md) and compares JSON.
-func TestLineageSharedFixtureBytes(t *testing.T) {
+// TestLineageSharedFixtureShape pins the shared fixture's structure with
+// ids mapped onto the semantic placeholders (s, a1, u, a2). The
+// byte-for-byte comparison against the canonical fixture lives in the
+// tools module, which embeds lethe (github.com/mythographica/lethe), the
+// single source of truth for the contract — the runtime stays stdlib-only
+// and reads no files.
+func TestLineageSharedFixtureShape(t *testing.T) {
 	_, user, adminOne, adminTwo, super := buildFixtureGraph(t)
 	graph, err := mnemonica.Lineage([]mnemonica.Instance{super, adminTwo})
 	if err != nil {
@@ -301,16 +304,31 @@ func TestLineageSharedFixtureBytes(t *testing.T) {
 		mnemonica.ID(adminTwo): "a2",
 	}
 	normalised := remapGraph(t, graph, mapping)
-	got, err := json.Marshal(normalised)
-	if err != nil {
-		t.Fatalf("marshal: %v", err)
+	if normalised["version"] != "1" {
+		t.Errorf("version = %v, want 1", normalised["version"])
 	}
-	want, err := os.ReadFile("../testdata/lineage/fixture.json")
-	if err != nil {
-		t.Fatalf("read fixture: %v", err)
+	heads := normalised["heads"].([]any)
+	if len(heads) != 2 || heads[0] != "s" || heads[1] != "a2" {
+		t.Errorf("heads = %v, want [s a2]", heads)
 	}
-	if !bytes.Equal(got, bytes.TrimSpace(want)) {
-		t.Errorf("lineage graph differs from the shared fixture:\n%s", got)
+	nodes := normalised["nodes"].(map[string]any)
+	if len(nodes) != 4 {
+		t.Fatalf("nodes = %d, want 4 (the shared user appears once)", len(nodes))
+	}
+	superNode := nodes["s"].(map[string]any)
+	if superNode["parent"] != "a1" {
+		t.Errorf("s.parent = %v, want a1", superNode["parent"])
+	}
+	adminNode := nodes["a1"].(map[string]any)
+	if adminNode["parent"] != "u" {
+		t.Errorf("a1.parent = %v, want u", adminNode["parent"])
+	}
+	adminOwn := adminNode["own"].(map[string]any)
+	if ref := adminOwn["Attached"].(map[string]any); ref["$ref"] != "u" {
+		t.Errorf("a1.Attached = %v, want $ref u", ref)
+	}
+	if userNode := nodes["u"].(map[string]any); userNode["parent"] != nil {
+		t.Errorf("u.parent = %v, want null", userNode["parent"])
 	}
 }
 

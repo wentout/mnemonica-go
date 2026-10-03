@@ -2,8 +2,12 @@ github.com/dlclark/regexp2 v1.11.0 h1:G/nrcoOa7ZXlpoa/91N3X7mM3r8eIlMBBJZvsz/mxK
 github.com/dlclark/regexp2 v1.11.0/go.mod h1:DHkYz0B9wPfa6wondMfaivmHpzrQ3v9q8cnmRbL6yW8=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
+github.com/mythographica/lethe v0.1.0 h1:wDD1AQ0SKTePAbvn6hrbclqY2gHwBC5S7CtWvklUE+U=
+github.com/mythographica/lethe v0.1.0/go.mod h1:3XvKfLx/e7zSdhz3VcFNnqqgzjbsSy/bnZCxfU2R2fU=
 github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 h1:1EYB5IzjZawrrnELUi78f9fPu57HuXjmddZPjrls/28=
 github.com/santhosh-tekuri/jsonschema/v6 v6.0.3/go.mod h1:JXeL+ps8p7/KNMjDQk3TCwPpBy0wYklyWTfbkIzdIFU=
+github.com/wentout/mnemonica-go v0.1.0 h1:CqjHUOt1kpzjfG6ITh2m+IRZNOzxC1MDwWrYEfclTWI=
+github.com/wentout/mnemonica-go v0.1.0/go.mod h1:wNHDdDW/HS9QArFy2xWbk3y5l7Es6TzXFBLvjAhutJU=
 golang.org/x/mod v0.28.0 h1:gQBtGhjxykdjY9YhZpSlZIsbnaE2+PgjfLWUQTnoZ1U=
 golang.org/x/mod v0.28.0/go.mod h1:yfB/L0NOf/kmEbXjzCPOx1iK1fRutOydrCMsqRhEBxI=
 golang.org/x/sync v0.17.0 h1:l60nONMj9l5drqw6jlhIELNv9I0A4OFgRsG9k2oT9Ug=
